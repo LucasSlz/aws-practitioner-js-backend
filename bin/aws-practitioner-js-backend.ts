@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { AwsPractitionerJsBackendStack } from '../lib/aws-practitioner-js-backend-stack';
+import { HelloLambdaStack } from '../lib/hello-lambda/hello-lambda-stack';
 
 const app = new cdk.App();
 new AwsPractitionerJsBackendStack(app, 'AwsPractitionerJsBackendStack', {
@@ -18,3 +19,5 @@ new AwsPractitionerJsBackendStack(app, 'AwsPractitionerJsBackendStack', {
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
+
+new HelloLambdaStack(app, 'HelloLambdaStack', {});
