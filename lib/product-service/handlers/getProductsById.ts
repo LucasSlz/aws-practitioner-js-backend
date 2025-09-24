@@ -1,4 +1,4 @@
-import { mockProducts } from '../../../mocks/mock-products';
+import { mockProducts } from './mock-products';
 
 export const getProductsById = async (event: any) => {
   const productId = event.pathParameters?.productId;

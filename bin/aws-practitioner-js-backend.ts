@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { AwsPractitionerJsBackendStack } from '../lib/aws-practitioner-js-backend-stack';
-import { HelloLambdaStack } from '../lib/hello-lambda/hello-lambda-stack';
+/* import { HelloLambdaStack } from '../lib/hello-lambda/hello-lambda-stack';*/
+import { ProductServiceStack } from '../lib/product-service/product-service-stack';
 
 const app = new cdk.App();
-new AwsPractitionerJsBackendStack(app, 'AwsPractitionerJsBackendStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
+
+/* new HelloLambdaStack(app, 'HelloLambdaStack', {
+    /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
 
@@ -17,7 +18,7 @@ new AwsPractitionerJsBackendStack(app, 'AwsPractitionerJsBackendStack', {
    * want to deploy the stack to. */
   // env: { account: '123456789012', region: 'us-east-1' },
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
+}); */
 
-new HelloLambdaStack(app, 'HelloLambdaStack', {});
+new ProductServiceStack(app, 'ProductServiceStack', {});
