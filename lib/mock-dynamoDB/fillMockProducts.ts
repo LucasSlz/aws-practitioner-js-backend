@@ -1,4 +1,5 @@
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { v4 as uuidv4 } from 'uuid';
 
 const dynamoDB = new DynamoDBClient({ region: "us-east-1" });
 
@@ -15,35 +16,35 @@ export type AvailableProduct = {
 
 export const mockProducts: AvailableProduct[] = [
   {
-    id: "1",
+    id: uuidv4(),
     title: "Wireless Mouse",
     description: "Ergonomic wireless mouse with adjustable DPI.",
     price: 29.99,
     count: 15,
   },
   {
-    id: "2",
+    id: uuidv4(),
     title: "Mechanical Keyboard",
     description: "RGB backlit mechanical keyboard with blue switches.",
     price: 89.99,
     count: 8,
   },
   {
-    id: "3",
+    id: uuidv4(),
     title: "USB-C Hub",
     description: "Multiport USB-C hub with HDMI and Ethernet.",
     price: 49.99,
     count: 20,
   },
   {
-    id: "4",
+    id: uuidv4(),
     title: "Noise Cancelling Headphones",
     description: "Over-ear headphones with active noise cancellation.",
     price: 199.99,
     count: 5,
   },
   {
-    id: "5",
+    id: uuidv4(),
     title: "Portable SSD",
     description: "1TB portable SSD with USB 3.2 interface.",
     price: 129.99,
