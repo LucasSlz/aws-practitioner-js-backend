@@ -4,6 +4,9 @@ import * as cdk from 'aws-cdk-lib';
 import * as path from 'path';
 import { Construct } from 'constructs';
 
+const PRODUCTS_TABLE = "Products";
+const STOCK_TABLE = "Stock";
+
 export class ProductServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -19,6 +22,10 @@ export class ProductServiceStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(5),
       handler: 'handler.getProductsList',
       code: lambda.Code.fromAsset(path.join(__dirname, './')),
+      environment: {
+        PRODUCTS_TABLE,
+        STOCK_TABLE
+      }
     });
     const getProductListIntegration = new apigateway.LambdaIntegration(getProductListFunction, {
       proxy: true,
@@ -37,6 +44,10 @@ export class ProductServiceStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(5),
       handler: 'handler.getProductsById',
       code: lambda.Code.fromAsset(path.join(__dirname, './')),
+      environment: {
+        PRODUCTS_TABLE,
+        STOCK_TABLE
+      }
     });
     const getProductByIdIntegration = new apigateway.LambdaIntegration(getProductByIdFunction, {
       proxy: true,
