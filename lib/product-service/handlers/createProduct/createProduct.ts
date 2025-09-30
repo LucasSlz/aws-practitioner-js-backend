@@ -6,6 +6,7 @@ const STOCK_TABLE = process.env.STOCK_TABLE;
 const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 export const createProduct = async (event: any) => {
+  console.log('createProduct called', { event });
   try {
     const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
     const { title, description, price, count } = body;

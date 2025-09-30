@@ -6,6 +6,7 @@ const STOCK_TABLE = process.env.STOCK_TABLE;
 const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 export const getProductsList = async (event: any) => {
+  console.log('getProductsList called', { event });
   try {
     // Scan Products table
     const productsData = await dynamoDB.send(new ScanCommand({ TableName: PRODUCTS_TABLE }));

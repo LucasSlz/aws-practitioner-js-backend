@@ -7,6 +7,7 @@ const STOCK_TABLE = process.env.STOCK_TABLE;
 const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 export const getProductsById = async (event: any) => {
+  console.log('getProductsById called', { event });
   const productId = event.pathParameters?.productId;
   if (!productId) {
     return {
