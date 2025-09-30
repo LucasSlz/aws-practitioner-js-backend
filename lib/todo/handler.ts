@@ -1,4 +1,4 @@
-import { Handler } from 'aws-lambda';
+/* import { Handler } from 'aws-lambda';
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,4 +25,4 @@ export const addTodo: Handler = async (event, context) => {
         console.error('Error:', error);
         throw new Error('Error adding item to DynamoDB table');
     }
-};
+}; */

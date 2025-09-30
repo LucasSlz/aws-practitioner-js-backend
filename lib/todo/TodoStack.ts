@@ -1,4 +1,4 @@
-import { Stack, StackProps } from "aws-cdk-lib";
+/* import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -36,8 +36,8 @@ export class TodoStack extends Stack {
 
     //when we have definition of the lambda, we grant it permission
     todosTable.grantWriteData(addTodoLambda);
-    /**
+
      * There are few ways to grant permission to your Lambda function, either you define custom role, or you call grantWriteData`` and grantReadData` to provide necessary permission automatically.
-     */
+
   }
-}
+} */
