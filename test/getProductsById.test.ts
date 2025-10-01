@@ -1,4 +1,4 @@
-import { getProductsById } from '../lib/product-service/handlers/getProductsById';
+import { getProductsById } from '../lib/product-service/handlers/getProductsById/getProductsById';
 
 describe('getProductsById', () => {
   it('should return status 200 and the correct product for a valid id', async () => {
