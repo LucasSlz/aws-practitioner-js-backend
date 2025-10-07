@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 const s3 = new AWS.S3();
 
-exports.handler = async (event: { httpMethod: string; queryStringParameters: { name: any } }) => {
+export const handler = async (event: { httpMethod: string; queryStringParameters: { name: any } }) => {
   console.log('Event:', JSON.stringify(event));
 
   // Handle CORS Preflight (OPTIONS Request)

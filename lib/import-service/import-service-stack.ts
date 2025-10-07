@@ -59,6 +59,22 @@ export class ImportServiceStack extends cdk.Stack {
     // Grant permissions to read from the S3 bucket
     bucket.grantRead(importFileParserLambda);
 
+    // Grant permissions to write to the "parsed/" folder
+    importFileParserLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:PutObject'],
+        resources: [`${bucket.bucketArn}/parsed/*`], // Allow PutObject in parsed folder
+      })
+    );
+
+    // Grant permissions to delete objects from the "uploaded/" folder
+    importFileParserLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:DeleteObject'],
+        resources: [`${bucket.bucketArn}/uploaded/*`], // Allow DeleteObject in uploaded folder
+      })
+    );
+
     // Configure S3 event to trigger Lambda on file creation in "uploaded/" folder
     bucket.addEventNotification(
       s3.EventType.OBJECT_CREATED,
