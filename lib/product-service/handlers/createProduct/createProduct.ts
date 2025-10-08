@@ -1,4 +1,4 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
@@ -24,24 +24,30 @@ export const createProduct = async (event: any) => {
 
     const id = uuidv4();
 
-    // Insert into Products table
-    await dynamoDB.send(new PutItemCommand({
-      TableName: PRODUCTS_TABLE,
-      Item: {
-        id: { S: id },
-        title: { S: title },
-        description: { S: description || "" },
-        price: { N: price.toString() },
-      },
-    }));
-
-    // Insert into Stock table
-    await dynamoDB.send(new PutItemCommand({
-      TableName: STOCK_TABLE,
-      Item: {
-        product_id: { S: id },
-        count: { N: count.toString() },
-      },
+    // Transactional write for product and stock
+    await dynamoDB.send(new TransactWriteItemsCommand({
+      TransactItems: [
+        {
+          Put: {
+            TableName: PRODUCTS_TABLE,
+            Item: {
+              id: { S: id },
+              title: { S: title },
+              description: { S: description || "" },
+              price: { N: price.toString() },
+            },
+          },
+        },
+        {
+          Put: {
+            TableName: STOCK_TABLE,
+            Item: {
+              product_id: { S: id },
+              count: { N: count.toString() },
+            },
+          },
+        },
+      ],
     }));
 
     return {
