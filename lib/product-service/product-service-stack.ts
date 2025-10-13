@@ -3,6 +3,8 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cdk from 'aws-cdk-lib';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Construct } from 'constructs';
 
 const PRODUCTS_TABLE = "Products";
@@ -94,5 +96,34 @@ export class ProductServiceStack extends cdk.Stack {
       proxy: true,
     });
     productsResource.addMethod('POST', createProductIntegration);
+    
+    // Task 6.1: SQS queue and batch process Lambda
+    const catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
+      visibilityTimeout: cdk.Duration.seconds(30),
+      receiveMessageWaitTime: cdk.Duration.seconds(0)
+    });
+
+    const catalogBatchProcess = new lambda.Function(this, 'catalog-batch-process', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(10),
+      handler: 'handler.catalogBatchProcess',
+      code: lambda.Code.fromAsset(path.join(__dirname, './')),
+      environment: {
+        PRODUCTS_TABLE,
+        STOCK_TABLE,
+        AWS_REGION: process.env.AWS_REGION || 'us-east-1',
+      },
+      events: [] // workaround for CDK bug with event sources
+    });
+
+    // Grant write access to both tables for batch process
+    productsTable.grantWriteData(catalogBatchProcess);
+    stockTable.grantWriteData(catalogBatchProcess);
+
+    // Add SQS event source with batchSize 5
+    catalogBatchProcess.addEventSource(new SqsEventSource(catalogItemsQueue, {
+      batchSize: 5
+    }));
   }
 }
