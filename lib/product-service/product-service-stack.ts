@@ -13,6 +13,7 @@ const STOCK_TABLE = "Stock";
 // as task requested the table to be created manually
 
 export class ProductServiceStack extends cdk.Stack {
+  public readonly catalogItemsQueue: sqs.Queue;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -98,7 +99,7 @@ export class ProductServiceStack extends cdk.Stack {
     productsResource.addMethod('POST', createProductIntegration);
     
     // Task 6.1: SQS queue and batch process Lambda
-    const catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
+  this.catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
       visibilityTimeout: cdk.Duration.seconds(30),
       receiveMessageWaitTime: cdk.Duration.seconds(0)
     });
@@ -125,5 +126,7 @@ export class ProductServiceStack extends cdk.Stack {
     catalogBatchProcess.addEventSource(new SqsEventSource(catalogItemsQueue, {
       batchSize: 5
     }));
+  // Export queue ARN and URL for use in other stacks
+  // (already set as public property above)
   }
 }

@@ -8,11 +8,14 @@ import 'source-map-support/register';
 import { ProductSqsStack } from '../lib/product-sqs/product-sqs-stack';
 import { ProductSnsStack } from '../lib/product-sns/product-sns-stack';
 
+
 const app = new cdk.App();
 
-new ProductServiceStack(app, 'ProductServiceStack', {});
+const productServiceStack = new ProductServiceStack(app, 'ProductServiceStack', {});
 
-new ImportServiceStack(app, 'ImportServiceStack', {});
+new ImportServiceStack(app, 'ImportServiceStack', {
+	catalogItemsQueue: productServiceStack.catalogItemsQueue
+});
 
 // Self-study
 new ProductSqsStack(app, 'ProductSqsStack', {});
