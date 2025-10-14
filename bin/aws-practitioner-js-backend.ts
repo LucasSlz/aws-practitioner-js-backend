@@ -12,13 +12,15 @@ import { ProductSnsStack } from '../lib/product-sns/product-sns-stack';
 const app = new cdk.App();
 
 
-const notificationEmail = process.env.NOTIFICATION_EMAIL;
+const notificationEmail = 'lucas_salazar@epam.com';
+const notificationEmailHighValue = 'luke.slz.dev@gmail.com';
 const productServiceStack = new ProductServiceStack(app, 'ProductServiceStack', {
-	notificationEmail,
+  notificationEmail,
+  notificationEmailHighValue,
 });
 
 new ImportServiceStack(app, 'ImportServiceStack', {
-	catalogItemsQueue: productServiceStack.catalogItemsQueue
+  catalogItemsQueue: productServiceStack.catalogItemsQueue
 });
 
 // Self-study

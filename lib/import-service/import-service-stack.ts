@@ -8,6 +8,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
+export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: cdk.StackProps & { catalogItemsQueue: import('aws-cdk-lib/aws-sqs').IQueue }) {
     super(scope, id, props);
     const catalogItemsQueue = props.catalogItemsQueue;

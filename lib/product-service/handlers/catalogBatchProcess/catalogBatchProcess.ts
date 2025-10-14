@@ -9,7 +9,7 @@ const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
 const sns = new SNSClient({ region: process.env.AWS_REGION });
 const CREATE_PRODUCT_TOPIC_ARN = process.env.CREATE_PRODUCT_TOPIC_ARN;
 
-export const handler = async (event: SQSEvent) => {
+export const catalogBatchProcess = async (event: SQSEvent) => {
   console.log('catalogBatchProcess event:', JSON.stringify(event));
 
   const createdProducts = [];

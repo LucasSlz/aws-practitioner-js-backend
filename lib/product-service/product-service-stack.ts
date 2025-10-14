@@ -16,6 +16,7 @@ const STOCK_TABLE = "Stock";
 
 export interface ProductServiceStackProps extends cdk.StackProps {
   notificationEmail: string;
+  notificationEmailHighValue: string;
 }
 
 export class ProductServiceStack extends cdk.Stack {
@@ -112,9 +113,9 @@ export class ProductServiceStack extends cdk.Stack {
     // Default email subscription (no filter)
     createProductTopic.addSubscription(new subs.EmailSubscription(props.notificationEmail));
 
-    // Additional email subscription with filter policy (e.g., price > 100)
+    // Additional email subscription with filter policy (price > 100)
     createProductTopic.addSubscription(
-      new subs.EmailSubscription('lucas_salazar@epam.com', {
+      new subs.EmailSubscription(props.notificationEmailHighValue, {
         filterPolicy: {
           price: sns.SubscriptionFilter.numericFilter({ greaterThan: 100 }),
         },
@@ -135,7 +136,6 @@ export class ProductServiceStack extends cdk.Stack {
       environment: {
         PRODUCTS_TABLE,
         STOCK_TABLE,
-        AWS_REGION: process.env.AWS_REGION || 'us-east-1',
         CREATE_PRODUCT_TOPIC_ARN: createProductTopic.topicArn,
       },
       events: [] // workaround for CDK bug with event sources
@@ -149,7 +149,7 @@ export class ProductServiceStack extends cdk.Stack {
     stockTable.grantWriteData(catalogBatchProcess);
 
     // Add SQS event source with batchSize 5
-    catalogBatchProcess.addEventSource(new SqsEventSource(catalogItemsQueue, {
+  catalogBatchProcess.addEventSource(new SqsEventSource(this.catalogItemsQueue, {
       batchSize: 5
     }));
     // Export queue ARN and URL for use in other stacks

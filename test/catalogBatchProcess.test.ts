@@ -1,4 +1,4 @@
-import { handler } from '../lib/product-service/handlers/catalogBatchProcess/catalogBatchProcess';
+import { catalogBatchProcess } from '../lib/product-service/handlers/catalogBatchProcess/catalogBatchProcess';
 import AWSMock from 'aws-sdk-mock';
 import AWS from 'aws-sdk';
 
@@ -36,7 +36,7 @@ describe('catalogBatchProcess', () => {
       ],
     };
 
-    const result = await handler(event as any);
+    const result = await catalogBatchProcess(event as any);
     expect(result.statusCode).toBe(200);
   });
 });
