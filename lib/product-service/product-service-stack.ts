@@ -5,6 +5,8 @@ import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
 
 const PRODUCTS_TABLE = "Products";
@@ -12,9 +14,13 @@ const STOCK_TABLE = "Stock";
 // Table permission granted via AWS Console IAM Role for Lambda execution
 // as task requested the table to be created manually
 
+export interface ProductServiceStackProps extends cdk.StackProps {
+  notificationEmail: string;
+}
+
 export class ProductServiceStack extends cdk.Stack {
   public readonly catalogItemsQueue: sqs.Queue;
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: ProductServiceStackProps) {
     super(scope, id, props);
 
   // Import existing DynamoDB tables
@@ -98,6 +104,12 @@ export class ProductServiceStack extends cdk.Stack {
     });
     productsResource.addMethod('POST', createProductIntegration);
     
+    // Task 6.3: SNS topic and email subscription
+    const createProductTopic = new sns.Topic(this, 'createProductTopic', {
+      displayName: 'Product Creation Topic'
+    });
+  createProductTopic.addSubscription(new subs.EmailSubscription(props.notificationEmail));
+
     // Task 6.1: SQS queue and batch process Lambda
   this.catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
       visibilityTimeout: cdk.Duration.seconds(30),
@@ -114,9 +126,13 @@ export class ProductServiceStack extends cdk.Stack {
         PRODUCTS_TABLE,
         STOCK_TABLE,
         AWS_REGION: process.env.AWS_REGION || 'us-east-1',
+        CREATE_PRODUCT_TOPIC_ARN: createProductTopic.topicArn,
       },
       events: [] // workaround for CDK bug with event sources
     });
+
+    // Grant publish permission to the Lambda
+    createProductTopic.grantPublish(catalogBatchProcess);
 
     // Grant write access to both tables for batch process
     productsTable.grantWriteData(catalogBatchProcess);

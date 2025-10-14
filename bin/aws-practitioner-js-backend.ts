@@ -11,7 +11,11 @@ import { ProductSnsStack } from '../lib/product-sns/product-sns-stack';
 
 const app = new cdk.App();
 
-const productServiceStack = new ProductServiceStack(app, 'ProductServiceStack', {});
+
+const notificationEmail = process.env.NOTIFICATION_EMAIL;
+const productServiceStack = new ProductServiceStack(app, 'ProductServiceStack', {
+	notificationEmail,
+});
 
 new ImportServiceStack(app, 'ImportServiceStack', {
 	catalogItemsQueue: productServiceStack.catalogItemsQueue
