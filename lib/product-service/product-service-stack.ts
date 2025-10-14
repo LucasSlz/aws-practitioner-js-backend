@@ -23,16 +23,16 @@ export class ProductServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ProductServiceStackProps) {
     super(scope, id, props);
 
-  // Import existing DynamoDB tables
-  const productsTable = Table.fromTableName(this, 'ProductsTable', PRODUCTS_TABLE);
-  const stockTable = Table.fromTableName(this, 'StockTable', STOCK_TABLE);
+    // Import existing DynamoDB tables
+    const productsTable = Table.fromTableName(this, 'ProductsTable', PRODUCTS_TABLE);
+    const stockTable = Table.fromTableName(this, 'StockTable', STOCK_TABLE);
 
-  const api = new apigateway.RestApi(this, 'product-api', {
+    const api = new apigateway.RestApi(this, 'product-api', {
       restApiName: "Product Service",
       description: "This service serves product data."
     });
     // --- GET /products ---
-  const getProductListFunction = new lambda.Function(this, 'get-products-list', {
+    const getProductListFunction = new lambda.Function(this, 'get-products-list', {
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 128,
       timeout: cdk.Duration.seconds(5),
@@ -43,11 +43,11 @@ export class ProductServiceStack extends cdk.Stack {
         STOCK_TABLE
       }
     });
-  // Grant read access to both tables
-  productsTable.grantReadData(getProductListFunction);
-  stockTable.grantReadData(getProductListFunction);
+    // Grant read access to both tables
+    productsTable.grantReadData(getProductListFunction);
+    stockTable.grantReadData(getProductListFunction);
 
-  const getProductListIntegration = new apigateway.LambdaIntegration(getProductListFunction, {
+    const getProductListIntegration = new apigateway.LambdaIntegration(getProductListFunction, {
       proxy: true,
     });
     const productsResource = api.root.addResource('products');
@@ -58,7 +58,7 @@ export class ProductServiceStack extends cdk.Stack {
     productsResource.addMethod('GET', getProductListIntegration);
 
     // --- GET /products/{productId} ---
-  const getProductByIdFunction = new lambda.Function(this, 'get-products-by-id', {
+    const getProductByIdFunction = new lambda.Function(this, 'get-products-by-id', {
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 128,
       timeout: cdk.Duration.seconds(5),
@@ -69,11 +69,11 @@ export class ProductServiceStack extends cdk.Stack {
         STOCK_TABLE
       }
     });
-  // Grant read access to both tables
-  productsTable.grantReadData(getProductByIdFunction);
-  stockTable.grantReadData(getProductByIdFunction);
+    // Grant read access to both tables
+    productsTable.grantReadData(getProductByIdFunction);
+    stockTable.grantReadData(getProductByIdFunction);
 
-  const getProductByIdIntegration = new apigateway.LambdaIntegration(getProductByIdFunction, {
+    const getProductByIdIntegration = new apigateway.LambdaIntegration(getProductByIdFunction, {
       proxy: true,
     });
     const productIdResource = productsResource.addResource('{productId}');
@@ -84,7 +84,7 @@ export class ProductServiceStack extends cdk.Stack {
     productIdResource.addMethod('GET', getProductByIdIntegration);
 
     // --- POST /products ---
-  const createProductFunction = new lambda.Function(this, 'create-product', {
+    const createProductFunction = new lambda.Function(this, 'create-product', {
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 128,
       timeout: cdk.Duration.seconds(5),
@@ -95,23 +95,33 @@ export class ProductServiceStack extends cdk.Stack {
         STOCK_TABLE
       }
     });
-  // Grant write access to both tables
-  productsTable.grantWriteData(createProductFunction);
-  stockTable.grantWriteData(createProductFunction);
+    // Grant write access to both tables
+    productsTable.grantWriteData(createProductFunction);
+    stockTable.grantWriteData(createProductFunction);
 
-  const createProductIntegration = new apigateway.LambdaIntegration(createProductFunction, {
+    const createProductIntegration = new apigateway.LambdaIntegration(createProductFunction, {
       proxy: true,
     });
     productsResource.addMethod('POST', createProductIntegration);
-    
+
     // Task 6.3: SNS topic and email subscription
     const createProductTopic = new sns.Topic(this, 'createProductTopic', {
       displayName: 'Product Creation Topic'
     });
-  createProductTopic.addSubscription(new subs.EmailSubscription(props.notificationEmail));
 
+    // Default email subscription (no filter)
+    createProductTopic.addSubscription(new subs.EmailSubscription(props.notificationEmail));
+
+    // Additional email subscription with filter policy (e.g., price > 100)
+    createProductTopic.addSubscription(
+      new subs.EmailSubscription('lucas_salazar@epam.com', {
+        filterPolicy: {
+          price: sns.SubscriptionFilter.numericFilter({ greaterThan: 100 }),
+        },
+      })
+    );
     // Task 6.1: SQS queue and batch process Lambda
-  this.catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
+    this.catalogItemsQueue = new sqs.Queue(this, 'catalogItemsQueue', {
       visibilityTimeout: cdk.Duration.seconds(30),
       receiveMessageWaitTime: cdk.Duration.seconds(0)
     });
@@ -142,7 +152,7 @@ export class ProductServiceStack extends cdk.Stack {
     catalogBatchProcess.addEventSource(new SqsEventSource(catalogItemsQueue, {
       batchSize: 5
     }));
-  // Export queue ARN and URL for use in other stacks
-  // (already set as public property above)
+    // Export queue ARN and URL for use in other stacks
+    // (already set as public property above)
   }
 }
