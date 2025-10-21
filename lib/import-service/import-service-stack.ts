@@ -9,8 +9,9 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 
 export class ImportServiceStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps & { catalogItemsQueue: import('aws-cdk-lib/aws-sqs').IQueue }) {
     super(scope, id, props);
+    const catalogItemsQueue = props.catalogItemsQueue;
 
     // S3 bucket Creation
     const bucket = new s3.Bucket(this, 'AWSPractitionerBucket', {
@@ -53,6 +54,7 @@ export class ImportServiceStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, 'lambda')),
       environment: {
         BUCKET_NAME: bucket.bucketName,
+        SQS_URL: catalogItemsQueue.queueUrl,
       },
     });
 
@@ -74,6 +76,9 @@ export class ImportServiceStack extends cdk.Stack {
         resources: [`${bucket.bucketArn}/uploaded/*`], // Allow DeleteObject in uploaded folder
       })
     );
+
+    // Grant permission to send messages to the SQS queue
+    catalogItemsQueue.grantSendMessages(importFileParserLambda);
 
     // Configure S3 event to trigger Lambda on file creation in "uploaded/" folder
     bucket.addEventNotification(

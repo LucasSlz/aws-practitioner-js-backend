@@ -3,6 +3,8 @@ import csvParser from 'csv-parser';
 import { Readable } from 'stream';
 
 const s3 = new AWS.S3();
+const sqs = new AWS.SQS();
+const SQS_URL = process.env.SQS_URL;
 
 export const handler = async (event: any) => {
   console.log('Event:', JSON.stringify(event));
@@ -38,11 +40,13 @@ export const handler = async (event: any) => {
         stream = s3Object.Body as Readable; // Assume it's already a stream
       }
 
-      // Step 2: Parse CSV file
-      const records: any[] = [];
-      for await (const record of stream.pipe(csvParser())) {
-        console.log('Parsed Record:', record);
-        records.push(record); // Optional: Store parsed records for further use
+
+      // Step 2: Parse CSV file and send each record to SQS
+      for await (const csvRecord of stream.pipe(csvParser())) {
+        await sqs.sendMessage({
+          QueueUrl: SQS_URL!,
+          MessageBody: JSON.stringify(csvRecord),
+        }).promise();
       }
 
       // Step 3: Copy the file to the parsed folder
