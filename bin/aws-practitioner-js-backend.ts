@@ -1,24 +1,28 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-/* import { HelloLambdaStack } from '../lib/hello-lambda/hello-lambda-stack';*/
+
 import { ProductServiceStack } from '../lib/product-service/product-service-stack';
+import { ImportServiceStack } from '../lib/import-service/import-service-stack';
+
+import 'source-map-support/register';
+//import { ProductSqsStack } from '../lib/product-sqs/product-sqs-stack';
+//import { ProductSnsStack } from '../lib/product-sns/product-sns-stack';
+
 
 const app = new cdk.App();
 
-/* new HelloLambdaStack(app, 'HelloLambdaStack', {
-    /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const notificationEmail = 'lucas_salazar@epam.com';
+const notificationEmailHighValue = 'luke.slz.dev@gmail.com';
+const productServiceStack = new ProductServiceStack(app, 'ProductServiceStack', {
+  notificationEmail,
+  notificationEmailHighValue,
+});
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+new ImportServiceStack(app, 'ImportServiceStack', {
+  catalogItemsQueue: productServiceStack.catalogItemsQueue
+});
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-}); */
-
-new ProductServiceStack(app, 'ProductServiceStack', {});
+// Self-study
+//new ProductSqsStack(app, 'ProductSqsStack', {});
+//new ProductSnsStack(app, 'ProductSnsStack', {});

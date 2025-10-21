@@ -1,4 +1,4 @@
-import { getProductsList } from '../lib/product-service/handlers/getProductsList';
+import { getProductsList } from '../lib/product-service/handlers/getProductsList/getProductsList';
 
 describe('getProductsList', () => {
   it('should return status 200 and a list of products', async () => {
