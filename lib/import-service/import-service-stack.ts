@@ -7,6 +7,8 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: cdk.StackProps & { catalogItemsQueue: import('aws-cdk-lib/aws-sqs').IQueue }) {
@@ -19,7 +21,7 @@ export class ImportServiceStack extends cdk.Stack {
       handler: 'basicAuthorizer.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../authorization-service')),
       environment: {
-        LucasSlz: 'TEST_PASSWORD'
+        LucasSlz: process.env.LucasSlz || '',
       }
     });
 
