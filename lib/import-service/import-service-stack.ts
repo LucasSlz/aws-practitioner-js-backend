@@ -13,6 +13,16 @@ export class ImportServiceStack extends cdk.Stack {
     super(scope, id, props);
     const catalogItemsQueue = props.catalogItemsQueue;
 
+    // Create the basicAuthorizer Lambda directly in this stack
+    const basicAuthorizerLambda = new lambda.Function(this, 'BasicAuthorizerLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'basicAuthorizer.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../authorization-service')),
+      environment: {
+        LucasSlz: 'TEST_PASSWORD'
+      }
+    });
+
     // S3 bucket Creation
     const bucket = new s3.Bucket(this, 'AWSPractitionerBucket', {
       versioned: true,
@@ -44,8 +54,14 @@ export class ImportServiceStack extends cdk.Stack {
       description: 'This service handles file imports.'
     });
 
+    const authorizer = new apigateway.TokenAuthorizer(this, 'ImportAuthorizer', {
+      handler: basicAuthorizerLambda,
+    });
     const importResource = api.root.addResource('import');
-    importResource.addMethod('GET', new apigateway.LambdaIntegration(importProductsFileLambda));
+    importResource.addMethod('GET', new apigateway.LambdaIntegration(importProductsFileLambda), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
+    });
 
     // ImportFileParser Lambda function
     const importFileParserLambda = new lambda.Function(this, 'ImportFileParserLambda', {
